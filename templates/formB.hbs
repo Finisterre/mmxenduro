@@ -1,0 +1,318 @@
+{{>header}}
+
+
+
+<div class="container" >
+    <div id="detailSimulation" class="col-sm-offset-3 col-sm-7">
+    <table class="table table-striped">
+       
+            <thead>
+                <tr>
+                    <th><h4>Tu Cotización</h4></th>
+                
+                    <th class="text-right"> <button type="button" id="modify" class="btn btn-default btn-sm">Modificar</button></th>
+                </tr>
+            </thead>
+             <tbody>
+            <tr>
+                <td><span class="brandName"></span> <span class="modelName"></span></td>
+            
+                <td class="versionPrice text-right"></td>
+            </tr>
+        
+                <td>Adelanto</td>
+                
+                <td class="cashAdvance text-right"></td>
+            </tr>
+            <tr>
+                <td>Auto Usado</td>
+                
+                <td class="usedCar text-right"></td>
+            </tr>
+            <tr>
+                <td>Monto a Financiar</td>
+                
+                <td class="amountToFinance text-right"></td>
+            </tr>
+            <tr>
+                <td>Cuota</td>
+                
+                <td class="feeValue text-right"></td>
+            </tr>
+        
+        </tbody>
+    </table>
+
+    </div>
+
+
+
+
+<div class="col-sm-offset-3 col-sm-7 ">
+    <h3 style="text-align: center">Completá tus Datos </h3>
+    <span style="text-align: center; float: left;width:  100%;"><b>Sin Cargo</b> y <b>Sin Compromiso de Compra</b></span>
+    <br><br>
+<div class="row">
+   
+    <form id="formDatos" >
+ 
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" class="form-control" name="nombre" id="firstName">
+        </div>
+         <div class="form-group">
+            <label for="apellido">Apellido:</label>
+            <input type="text" class="form-control" name="apellido" id="lastName">
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="email">E-mail:</label>
+            <input name='mail' type="email" class="form-control" id="email">
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-4">
+                    <label for="block">Cod. Area:</label>
+                    <input class="form-control" name="block" id="block" type="number" placeholder="ej 011">
+                </div>
+                <div class="col-xs-8">
+                    <label for="phone">Número:</label>
+                    <input class="form-control" name="phone" id="phone" type="number" placeholder="ej 45557345">
+                </div>
+            </div>
+
+
+        </div>
+    
+
+
+        <div class="alert alert-danger errors" hidden></div>
+        <button type="button" id="submit" class="btn btn-primary btn-block"></button>
+
+    </form>
+</div>
+
+</div>
+
+</div>
+<br>
+
+{{>footer}}
+
+<script>
+
+
+     var vehicleBlock    = JSON.parse(localStorage.getItem("vehicleBlock"));
+     var cashAdvance     = localStorage.getItem("cashAdvance");
+     var usedCar         = localStorage.getItem("usedCar");
+     var fee             = localStorage.getItem("fee");
+     var amountToFinance = localStorage.getItem("amountToFinance");
+     var modelSlug       = localStorage.getItem("modelSlug");
+     var pageVersion     = "";
+
+     var localPageVersion     = localStorage.getItem("pageVersion");
+
+     if(localPageVersion){
+         pageVersion = localPageVersion;
+     }
+
+     $('#modify').click(function(){
+
+         window.location.href = '/'+vehicleBlock.vehicle.make.name+'/model/'+modelSlug;
+       
+     })
+     
+    $('.brandName').html(capitalizeFirstLetter(vehicleBlock.vehicle.make.name));
+    $('.modelName').html(capitalizeFirstLetter(vehicleBlock.vehicle.model.name));
+    $('.versionName').html(vehicleBlock.vehicle.trim.name);
+    $('.versionPrice').html(formatPrice(vehicleBlock.vehicle.trim.price));
+    $('.cashAdvance').html(formatPrice(cashAdvance));
+    $('.usedCar').html(formatPrice(usedCar));
+    $('.feeValue').html(formatPrice(fee));
+    $('.amountToFinance').html('<b>'+formatPrice(amountToFinance)+'</b>');
+
+    $('.btn-block').html('COTIZAR '+vehicleBlock.vehicle.make.name.toUpperCase()+' '+vehicleBlock.vehicle.model.name.toUpperCase())
+ 
+
+    var formData = new Object();
+    var gender;
+    var formFields = [
+        {
+            name: 'dni',
+            regExp: /^[0-9]{5,10}$/,
+            errorMessage: 'Por favor ingrese su DNI'
+        },
+        {
+        name: 'nombre',
+        regExp: /^([a-zA-ZÃ¡Ã Ã©Ã¨Ã­Ã¬Ã³Ã²ÃºÃ¹Ã¼Ã±Ã§ÃÃ€Ã‰ÃˆÃÃŒÃ“Ã’ÃšÃ™ÃœÃ‘Ã‡]{2,} ?)+$/,
+        errorMessage: 'El nombre ingresado es inv&aacute;lido.'
+        },
+         {
+        name: 'apellido',
+        regExp: /^([a-zA-ZÃ¡Ã Ã©Ã¨Ã­Ã¬Ã³Ã²ÃºÃ¹Ã¼Ã±Ã§ÃÃ€Ã‰ÃˆÃÃŒÃ“Ã’ÃšÃ™ÃœÃ‘Ã‡]{2,} ?)+$/,
+        errorMessage: 'El nombre ingresado es inv&aacute;lido.'
+        },
+        {
+            name: 'mail',
+            regExp: /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i,
+            errorMessage: 'El email ingresado es inv&aacute;lido.'
+        }
+
+    ]
+
+
+
+   
+
+
+    $('input').change(function(){
+        $(this).addClass('btn-success');
+    })
+    
+
+
+
+    $('#submit').click(function () {
+
+        dataLayer.push({
+        'event':'analyticsEvent',
+        'eventCategory': 'button',
+        'eventAction': 'press',
+        'eventLabel': 'Buscar Opciones',
+        'eventValue': 0
+        });
+
+        var $errors = $('.errors');
+        $errors.hide();
+
+        function validateForm() {
+
+            $errors.empty().hide();
+
+            for (var index = 0; index < formFields.length; index++) {
+
+                var formField = formFields[index];
+                var formFieldElement = $('[name="' + formField.name + '"]');
+
+                if (formFieldElement.prop('tagName') === 'SELECT'
+                    && typeof formFieldElement.find(':selected').data(formField.data) === 'undefined'
+                    || formFieldElement.prop('tagName') === 'INPUT'
+                    && !formFieldElement.val().trim().match(formField.regExp)) {
+                    showError(formField.errorMessage);
+                    return false;
+                }
+            }
+
+            var prefix = $("input[name='block']").val();
+
+            if (prefix === '') {
+
+                showError('Ingrese el código de area');
+
+                return false;
+
+            }
+
+            var phone = $("input[name='phone']").val();
+
+            if (phone === '') {
+
+                showError('Ingrese un número de teléfono');
+
+                return false;
+
+            }
+        
+
+
+
+        }
+
+        function showError(errorMessage) {
+            $errors.append('<span>' + errorMessage + '</span>');
+            $errors.fadeIn();
+        }
+
+
+
+
+
+        if (false !== validateForm()) {
+            goToByScroll('.loader-container');
+            $('.loader-container').fadeIn();
+
+
+            var phoneData = new Object();
+
+            $.each($('input'), function () {
+
+                var thisKey = $(this).attr('id');
+
+
+
+
+                switch (thisKey) {
+                    case 'email':
+                        formData.email = $(this).val();
+                        break;
+                    case 'block':
+                        phoneData.prefix = $(this).val();
+                        break;
+                    case 'phone':
+                        phoneData.block = $(this).val();
+                        break;
+                    default:
+                        'tu vieja'
+                }
+
+            });
+
+
+
+            formData.phone = phoneData;
+            formData.gender = gender;
+
+            var income = $('#income').val();
+            var dni = $('#dni').val();
+
+               var financialInstruments = IFcall();
+
+
+
+                formData.name =$('#firstName').val();
+                formData.surname = $('#lastName').val();
+
+                financialInstruments.then(function (rpta) {
+
+                    localStorage.setItem('IFS', JSON.stringify(rpta));
+
+                });
+
+
+                console.log(formData);
+
+               localStorage.setItem('formData', JSON.stringify(formData));
+
+                var Fee = parseInt(localStorage.getItem('fee'));
+
+                callNMF(Fee, null, null, "form");
+
+                window.setTimeout(function () {
+
+               window.location.href = "/"+vehicleBlock.vehicle.make.name.toLowerCase()+"/results/opciones-financiacion";
+
+                }, 1500); 
+
+
+
+        }
+    });
+
+
+
+
+
+
+
+
+</script>

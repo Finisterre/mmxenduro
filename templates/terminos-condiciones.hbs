@@ -1,0 +1,33 @@
+{{>header}}
+<div class="container ">
+
+    <h2>{{global.politicas.title}}</h2>
+    <ul class="text-justify">
+        {{#each global.politicas.description}}
+          <li> {{this.texto}}</li> 
+        {{/each}}
+    </ul>
+    <h2>{{global.formulario.title}}</h2>
+   <ul class="text-justify">
+        {{#each global.formulario.description}}
+          <li> {{this.texto}}</li> 
+        {{/each}}
+    </ul>
+    <h2>{{global.privacidad.title}}</h2>
+   <ul class="text-justify">
+        {{#each global.privacidad.description}}
+          <li> {{this.texto}}</li> 
+        {{/each}}
+    </ul>
+     <h2>{{global.derechos.title}}</h2>
+   <ul class="text-justify">
+        {{#each global.derechos.description}}
+          <li> {{this.texto}}</li> 
+        {{/each}}
+    </ul>
+
+</div>
+
+{{>footer}}
+</body>
+</html>

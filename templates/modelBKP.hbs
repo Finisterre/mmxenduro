@@ -1,0 +1,257 @@
+ {{>header}}
+
+
+
+<div class="container">
+
+    <div class="col-sm-offset-3 col-sm-7">
+        <div class="row">
+
+           <h2> Financiá tu {{capitalixe brand_slug}} {{niceName}}  </h2>
+     
+
+   
+               <img class="img-responsive" style="margin:0 auto" width="70%" src="//frontcdn.azureedge.net/enduroImages2/{{brand_slug}}/{{model_slug}}-thumb.jpg">
+   
+            
+            <div class="row">
+
+
+                <div class="col-sm-12">
+                    <h4>Calculá tu Financiación en 2 Simples Pasos</h4>
+
+                    <div class="form-group " id="versionForm">
+
+                        <input type="hidden" value="{{id}}" data-name="{{brand_slug}}" id="brandData">
+                        <select class="selectpicker"  data-width="100%" id="versionsSelector">
+                            <option>Seleccioná tu version</option>
+                            {{#each versions}}
+                            <option data-modelname="{{../niceName}}" data-subtext="{{this.formatedPrice}}" value="{{this.id}}" data-slug="{{../model_slug}}" data-name="{{this.name}}" data-model="{{this.model}}" data-formattedprice="{{this.formatedPrice}}"
+                                data-price="{{this.price}}">
+                              <b>{{versionsName this.name}}</b>
+                            </option>
+                            {{/each}}
+
+                        </select>
+                        <br>
+                        <br><label for="usedCar">¿Adelantas efectivo?</label>
+                        <input type="number" class="form-control" id="cashAdvance" placeholder="Ingresá monto">
+                        <br id="usedCarAnchor">
+                        <label for="usedCar">¿Entregas un auto usado?</label>
+                        <input type="number" class="form-control" id="usedCar" placeholder="Ingresá el valor">
+
+                        <h3 class="text-center" id="amountToFInance"></h3>
+                        <label for="usedCar">¿Qué cuota podes pagar?</label>
+                        <input type="number" class="form-control" id="fee" placeholder="Ingresá el valor">
+                        <br>
+                        <div class="alert alert-danger versionError" hidden>
+                            Por favor seleccione una versión.
+                        </div>
+
+                     <div class="alert alert-danger errors" hidden></div>
+                    </div>
+                    <button type="button" id="submitForm" class="btn btn-primary btn-block">Continuar Simulación -></button>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+
+
+{{>footer}}
+
+
+
+<script>
+
+
+  $("#versionsSelector  option:first").attr('selected','selected');
+
+    var $errors = $('.errors');
+        $errors.hide();
+        function showError(errorMessage) {
+            $errors.append('<span>' + errorMessage + '</span>');
+            $errors.fadeIn();
+        }
+
+
+    var selectedVersion;
+    var amountToFInance;
+    var usedCar = 0;
+    var amountToShow = 0;
+    var cashAdvance = 0;
+    var modelVersion;
+    var fee = 10000;
+    var vehicleBlock;
+    var brandId = $('#brandData').val();
+    var brandName = $('#brandData').data("name");
+    var versionName;
+    var modelName;
+    var versionPrice;
+    var modelSlug;
+    var allgood = true;
+
+    $('#versionsSelector').change(function () {
+       
+        $('.btn-default').toggleClass('btn-default btn-success');
+       
+        $('.alert').fadeOut();
+       
+        var selected = $(this).find(":selected");
+
+        amountToFInance = selected.data("price");
+        versionPrice = selected.data("price");
+        amountToShow =  selected.data("price");
+
+        selectedVersion = selected.val();
+        modelVersion    = selected.data("model");
+        versionName     = selected.data("name");
+        modelSlug       = selected.data("slug");
+        modelName       = selected.data("modelname");
+
+
+        localStorage.setItem('modelName', modelName);
+
+        goToByScroll('#cashAdvance');
+
+    });
+
+    $('#cashAdvance').change(function () {
+
+        $(this).addClass('btn-success');
+       
+        usedCar = usedCar;
+        allgood = true;
+
+        amountToShow = amountToFInance - (parseInt($(this).val()) + usedCar);
+
+
+        cashAdvance = parseInt($(this).val());
+            
+      
+        if(parseInt(amountToShow) > 0){
+                 $('#amountToFInance').html('<small>Monto a Financiar:</small> ' + formatPrice(amountToShow));
+
+            goToByScroll('#usedCarAnchor');
+              allgood = true;
+
+               $('.errors').empty();
+               $('.errors').hide();
+
+        }else{
+
+                $('#cashAdvance').focus();
+              showError('El adelanto en efectivo es mayor al valor del vehiculo');
+              allgood = false;
+
+        }
+
+       
+    })
+
+    $('#usedCar').change(function () {
+
+        $(this).addClass('btn-success');
+        cashAdvance = cashAdvance;
+
+        amountToShow = amountToFInance - (parseInt($(this).val()) + cashAdvance);
+
+        usedCar = parseInt($(this).val());
+
+        if(amountToShow > 0){
+               $('#amountToFInance').html('<small>Monto a Financiar:</small> ' + formatPrice(amountToShow));
+
+             $('.errors').empty();
+               $('.errors').hide();
+              allgood = true;
+
+        }else{
+             $('#usedCar').focus();
+                $('.errors').empty();
+              showError('El adelanto total es mayor al valor del vehiculo');
+              allgood = false;
+
+        }
+
+
+       
+    });
+
+     $('#fee').change(function () {
+
+        $(this).addClass('btn-success');
+     });
+
+    $('#submitForm').click(function () {
+        $('.alert').fadeOut();
+      
+        if (selectedVersion && selectedVersion != 'Versiones') {
+
+           if(allgood){
+                  fee = $('#fee').val() || fee;
+
+            localStorage.setItem('cashAdvance', cashAdvance);
+            localStorage.setItem('usedCar', usedCar);
+            localStorage.setItem('fee', fee);
+            localStorage.setItem('selectedVersion', selectedVersion);
+            localStorage.setItem('modelSlug', modelSlug );
+
+            vehicleBlock = {
+                "vehicle": {
+                    "make": {
+                        "id": parseInt(brandId),
+                        "name": brandName
+                    },
+                    "model": {
+                        "id": parseInt(modelVersion),
+                        "name": modelName.toString()
+                    },
+                    "trim": {
+                        "id": parseInt(selectedVersion),
+                        "name": versionName,
+                        "year": 2018,
+                        "price": parseInt(versionPrice)
+                    }
+                }
+            };
+
+
+
+            localStorage.setItem('amountToFinance', amountToShow);
+            localStorage.setItem('vehicleBlock', JSON.stringify(vehicleBlock));
+
+            $('.loader-container').fadeIn();
+              goToByScroll('.container');
+            window.setTimeout(function () {
+                
+             window.location.href ='/'+brandName.toLowerCase()+"/form/ingreso-datos";
+
+            }, 1500);
+           }else{
+                  $('.errors').empty();
+              showError('El adelanto total es mayor al valor del vehiculo');  
+           }     
+         
+
+
+
+
+        } else {
+           $('.versionError').fadeIn();
+        }
+
+
+
+
+    })
+
+
+
+</script>
+</body>
+</html>

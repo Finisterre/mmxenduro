@@ -1,0 +1,56 @@
+{{>header}}
+<div class="container">    
+
+  <h2>
+    Podés llegar a tu 0km {{capitalixe brand.niceName}}. Seleccioná tu modelo. 
+  </h2>
+  <br><br>
+</div>
+<div class="container">    
+
+
+
+       {{#each model as |value key|}}
+ 
+ 
+   <div class="col-sm-2 modelLink" data-link="../../{{../brand.slug}}/model/{{this.slug}}" data-model="{{this.slug}}">
+      <object data="//frontcdn.azureedge.net/enduroImages2/{{../brand.slug}}/{{this.slug}}-thumb.jpg" type="image/png" class="img-responsive" style="width:100%" alt="{{this.name}}">
+       <img src="/assets/img/default-thumb.jpg">
+     
+      </object>
+      <h4>{{this.name}}</h4>
+      <p> Desde {{this.lowestPrice}}</p> 
+       <hr>
+    </div>
+   
+      {{/each}}
+
+  
+</div><br>
+
+
+{{>footer}}
+
+
+<script>
+ localStorage.clear();
+
+
+  $('.modelLink').click(function(){
+
+    $(this).css('opacity', '.4');
+  
+    var link   = $(this).data('link');
+
+    var selectedModel = $(this).data('model');
+    localStorage.setItem('modelName', selectedModel); 
+  
+       window.location.href = link;
+
+
+    
+  })
+
+</script>
+</body>
+</html>
